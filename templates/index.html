@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vertex — Currency Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-scene" aria-hidden="true">
+  <div class="bg-gradient"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="logo">
+      <span class="logo-mark">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 1L24 7V19L13 25L2 19V7L13 1Z" stroke="url(#logoGrad)" stroke-width="1.6"/>
+          <path d="M13 8L18 11V17L13 20L8 17V11L13 8Z" fill="url(#logoGrad)"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="2" y1="1" x2="24" y2="25" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7C3AED"/>
+              <stop offset="0.5" stop-color="#2563EB"/>
+              <stop offset="1" stop-color="#06B6D4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <span class="logo-text">Vertex</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="#converter">Converter</a>
+      <a href="#history">History</a>
+      <a href="#stats">Statistics</a>
+    </div>
+
+    <div class="nav-clock" id="liveClock">
+      <span class="clock-dot"></span>
+      <span id="clockTime">--:--:--</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow fade-in">Live mid-market rates · powered by Python</p>
+    <h1 class="headline fade-in">
+      Currency, converted<br/>
+      <span class="gradient-text">at the speed of now.</span>
+    </h1>
+    <p class="subtitle fade-in">
+      Real exchange rates fetched and calculated entirely on the server —
+      no shortcuts, no client-side math. Just clean, fast conversions.
+    </p>
+  </div>
+</header>
+
+<!-- Converter -->
+<main>
+  <section class="converter-section" id="converter">
+    <div class="glass-card converter-card slide-up">
+
+      <div class="card-header">
+        <h2>Convert</h2>
+        <button class="fav-btn" id="favBtn" title="Save as favorite pair" aria-label="Save as favorite pair">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Amount -->
+      <div class="field-group">
+        <label for="amountInput">Amount</label>
+        <input type="number" id="amountInput" class="amount-input" placeholder="0.00" min="0" step="any" value="1" />
+      </div>
+
+      <!-- From / Swap / To -->
+      <div class="currency-row">
+        <div class="currency-select-wrap">
+          <label>From</label>
+          <button class="currency-select" id="fromSelectBtn" type="button">
+            <span class="flag" id="fromFlag">🌐</span>
+            <span class="ccy-code" id="fromCode">USD</span>
+            <span class="ccy-name" id="fromName">US Dollar</span>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <button class="swap-btn" id="swapBtn" type="button" aria-label="Swap currencies">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 16V4M7 4L3 8M7 4l4 4"/>
+            <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+          </svg>
+        </button>
+
+        <div class="currency-select-wrap">
+          <label>To</label>
+          <button class="currency-select" id="toSelectBtn" type="button">
+            <span class="flag" id="toFlag">🌐</span>
+            <span class="ccy-code" id="toCode">PKR</span>
+            <span class="ccy-name" id="toName">Pakistani Rupee</span>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="convert-btn ripple" id="convertBtn" type="button">
+        <span class="btn-label">Convert</span>
+        <span class="btn-spinner" id="btnSpinner" hidden></span>
+      </button>
+
+      <!-- Result -->
+      <div class="result-card" id="resultCard" hidden>
+        <div class="result-top">
+          <span class="result-label">Result</span>
+          <button class="copy-btn" id="copyBtn" title="Copy result">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+            <span id="copyLabel">Copy</span>
+          </button>
+        </div>
+        <div class="result-amount" id="resultAmount">0.00</div>
+        <div class="result-rate" id="resultRate">1 USD = 0.0000 PKR</div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-alert" id="errorAlert" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span id="errorText"></span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="stats">
+      <div class="glass-card stat-card slide-up" style="--delay:0.05s">
+        <span class="stat-label">Conversions this session</span>
+        <span class="stat-value" id="statConversions">0</span>
+      </div>
+      <div class="glass-card stat-card slide-up" style="--delay:0.1s">
+        <span class="stat-label">Favorite pair</span>
+        <span class="stat-value" id="statFavorite">—</span>
+      </div>
+      <div class="glass-card stat-card slide-up" style="--delay:0.15s">
+        <span class="stat-label">Currencies available</span>
+        <span class="stat-value" id="statCurrencies">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- History -->
+  <section class="history-section" id="history">
+    <div class="glass-card history-card slide-up">
+      <div class="card-header">
+        <h2>Conversion history</h2>
+        <button class="clear-btn" id="clearHistoryBtn">Clear</button>
+      </div>
+      <ul class="history-list" id="historyList">
+        <li class="history-empty">No conversions yet — your history will show up here.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>Rates provided by <a href="https://github.com/fawazahmed0/exchange-api" target="_blank" rel="noopener">fawazahmed0/currency-api</a> · All conversion logic runs in Python on the server.</p>
+</footer>
+
+<!-- Currency picker modal -->
+<div class="picker-overlay" id="pickerOverlay" hidden>
+  <div class="picker-modal glass-card">
+    <div class="picker-header">
+      <h3 id="pickerTitle">Select currency</h3>
+      <button class="picker-close" id="pickerClose" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input type="text" id="pickerSearch" class="picker-search" placeholder="Search currency or code..." />
+    <ul class="picker-list" id="pickerList"></ul>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
